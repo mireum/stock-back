@@ -1,4 +1,4 @@
-# 모의주식 백앤드
+# 메모
 
 npm i -D express ts-node nodemon @types/node @types/express
 
@@ -9,3 +9,5 @@ npm i -D express ts-node nodemon @types/node @types/express
     "build": "tsc -p .",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/index.ts"
   },
+
+npm run dev로 실행
