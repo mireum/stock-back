@@ -1,7 +1,8 @@
 # 메모
 
 npm i -D express ts-node nodemon @types/node @types/express
-
+🙆‍♀️ cookie-parser cors dotenv express-session morgan
+🙅‍♀️ bcrypt @aws-sdk/client-s3 aws-sdk ejs multer multer-s3 passport passport-local
 
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
