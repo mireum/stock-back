@@ -5,7 +5,7 @@ var db_info: ConnectionOptions = {
   port: 3306,
   user: "root",
   password: "qwer",
-  database: "react_node",
+  database: "stock_db",
 };
 
 const init = (): Connection => createConnection(db_info);

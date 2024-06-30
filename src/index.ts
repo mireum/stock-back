@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import multer, { Multer } from "multer";
+import dotenv from 'dotenv';
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import { readFile, mkdirSync, existsSync } from "fs";
@@ -11,6 +12,8 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
+
+dotenv.config();
 
 const app: Express = express();
 const conn: Connection = init();
@@ -60,6 +63,7 @@ app.use(
 
 // 게시글 목록 보기
 app.get("/view", (req: Request, res: Response) => {
+  // board가 테이블 이름
   var sql: string = "select * from board";
   conn.query(sql, (err: error, result: result) => {
     if (err) console.log("query is not excuted: " + err);
