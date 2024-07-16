@@ -51,9 +51,8 @@ router.post('/kakao',async (req,res,next)=>{
       const getKakaoUser = await axios.get("https://kapi.kakao.com/v2/user/me", {headers: header})
       const result = getKakaoUser.data;
 
-      // id, email 추출
-      // return {id:result.id,email:result.kakao_account.email}
-      return result;
+      // id, 닉네임, 썸네일 추출
+      return {id:result.id, nickname:result.properties.nickname, thumbnail_image:result.properties.thumbnail_image}
     }
     
     const {accessToken}=await getKakaoToken(code);
@@ -62,7 +61,10 @@ router.post('/kakao',async (req,res,next)=>{
 
     // console.log(`id, email`, id, email);
     console.log(`response`, response);
-
+    res.json({
+      message: '카카오 사용자 정보 확인',
+      response
+    })
   } catch (err) {
     console.log(err);     
   }
