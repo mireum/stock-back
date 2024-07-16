@@ -12,6 +12,7 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
+import auth from "./routes/auth";
 
 dotenv.config();
 
@@ -60,6 +61,44 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
+// app.use(
+//   cors({
+//     origin(
+//       origin: string | undefined,
+//       callback: (err: Error | null, origin?: boolean) => void
+//     ) {
+//       console.log("접속된 주소: " + origin);
+//       if (origin && whitelist.indexOf(origin) === -1) {
+//         callback(new Error("허가되지 않은 주소입니다."));
+//       } else {
+//         callback(null, true);
+//       }
+//     },
+//     credentials: true,
+//     optionsSuccessStatus: 200,
+//   })
+// );
+
+// 주식 api
+interface Data{
+  id:number;
+  name:string;
+}
+
+const Send:Data = {
+  id:0,
+  name:'test'
+}
+
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+      success: true,
+      data:Send
+  })
+});
+
+// 라우터
+app.use('/', auth);
 
 // 게시글 목록 보기
 app.get("/view", (req: Request, res: Response) => {

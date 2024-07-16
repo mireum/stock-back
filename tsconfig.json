@@ -12,6 +12,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*.ts", "src/**/*.json", ".env"],
   "exclude": ["node_modules"]
 }
