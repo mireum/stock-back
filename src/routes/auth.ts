@@ -1,11 +1,22 @@
-import {Router} from "express";
+import express from "express";
 
-export default (router:Router)=>{
+// import {Router} from "express";
+
+const router = express.Router();
+// export default (router:Router)=>{
     // router.use('/auth',router) // "/auth"가 기준이됨
 
-    router.post('/kakao',async (req,res,next)=>{  //라우터 구현
-      const {code} = req.body  // 프런트에서 인가코드 body에 담아서 보낸거 받기
-      console.log(code);
-      
+router.post('/kakao',async (req,res,next)=>{
+  try {
+    const {code} = req.body;
+    console.log(code);
+    res.json({
+      message: '성공!'
     })
-}
+  } catch (err) {
+    console.log(err);
+        
+  }
+ })
+
+ module.exports = router;

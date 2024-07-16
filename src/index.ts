@@ -12,11 +12,11 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
-import auth from "./routes/auth";
+
+const app: Express = express();
 
 dotenv.config();
 
-const app: Express = express();
 const conn: Connection = init();
 const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
 const upload: Multer = multer({
@@ -41,6 +41,9 @@ type result =
   | OkPacket[]
   | ResultSetHeader;
 
+// 라우터 가져오기
+const authRouter = require('./routes/auth');
+
 app.set("port", process.env.PORT || 5000);
 app.set("host", process.env.HOST || "0.0.0.0");
 
@@ -61,25 +64,7 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
-// app.use(
-//   cors({
-//     origin(
-//       origin: string | undefined,
-//       callback: (err: Error | null, origin?: boolean) => void
-//     ) {
-//       console.log("접속된 주소: " + origin);
-//       if (origin && whitelist.indexOf(origin) === -1) {
-//         callback(new Error("허가되지 않은 주소입니다."));
-//       } else {
-//         callback(null, true);
-//       }
-//     },
-//     credentials: true,
-//     optionsSuccessStatus: 200,
-//   })
-// );
 
-// 주식 api
 interface Data{
   id:number;
   name:string;
@@ -98,7 +83,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // 라우터
-app.use('/', auth);
+app.use('/auth', authRouter);
 
 // 게시글 목록 보기
 app.get("/view", (req: Request, res: Response) => {
