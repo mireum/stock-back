@@ -12,6 +12,7 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
+import session from 'express-session';
 
 const app: Express = express();
 
@@ -48,6 +49,15 @@ app.set("port", process.env.PORT || 5000);
 app.set("host", process.env.HOST || "0.0.0.0");
 
 app.use(json());
+
+// session 사용 미들웨어
+app.use(session({
+  secret: 'KakaoToken',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // set secure: true if you're using https
+}));
+
 app.use(urlencoded({ extended: false }));
 app.use(
   cors({

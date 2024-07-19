@@ -11,6 +11,10 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types",
+    ]
   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env"],
   "exclude": ["node_modules"]

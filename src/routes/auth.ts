@@ -1,11 +1,16 @@
 import axios from "axios";
 import express from "express";
+import session from "express-session";
 
 interface Data {
   grant_type: string;
   client_id: string;
   code: string;
   [key: string]: string;
+}
+
+interface SessionData {
+  accessToken: string;
 }
 
 // 헤더 설정
@@ -57,6 +62,15 @@ router.post('/kakao',async (req,res,next)=>{
     
     const {accessToken}=await getKakaoToken(code);
 
+    // session에 토큰 저장
+    req.session.accessToken = accessToken;
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+      } else {
+        console.log('Session saved successfully:', req.session);
+      }
+    });
     const response = await getUserInfo(accessToken);
 
     // console.log(`id, email`, id, email);
@@ -68,11 +82,33 @@ router.post('/kakao',async (req,res,next)=>{
   } catch (err) {
     console.log(err);     
   }
- })
+ });
+
+ router.post('/kakaoLogout', async (req,res,next)=>{
+  try {
+    const token = req.session.accessToken;
+
+    if (!token) {
+      return res.status(400).send('세선에 토큰 없음');
+    }
+
+    const response = await axios(`https://kapi.kakao.com/v1/user/logout`, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      },
+    });
+    console.log('response', response);
+    req.session.accessToken = null;
+    
+  } catch (err) {
+    console.error(err);
+  }
+ });
 
  module.exports = router;
 
-//  response 결과!
+//  login response 결과!
 //  {
 //   id: 3625128577,
 //   connected_at: '2024-07-16T17:02:49Z',
