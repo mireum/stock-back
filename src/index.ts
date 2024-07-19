@@ -4,21 +4,43 @@ import dotenv from 'dotenv';
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import { readFile, mkdirSync, existsSync } from "fs";
-import { init } from "./database/mysql";
+// import { init } from "./database/mysql";
 import {
-  OkPacket,
-  QueryError,
+  OkPacket,createConnection,
+  QueryError,ConnectionOptions,
   Connection,
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
 import session from 'express-session';
 
+var db_info: ConnectionOptions = {
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "qwer",
+  database: "stock_db",
+};
+
+const init = (): Connection => createConnection(db_info);
+
+const connect = (conn: { connect: (arg0: (err: any) => void) => void }) => {
+  conn.connect((err) => {
+    if (err) {
+      console.error("mysql connection error : " + err);
+    } else {
+      console.log("mysql is connected successfully!");
+    }
+  });
+};
+const conn: Connection = init();
+connect(conn);
+
+
 const app: Express = express();
 
 dotenv.config();
 
-const conn: Connection = init();
 const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
 const upload: Multer = multer({
   storage: multer.diskStorage({
@@ -95,93 +117,93 @@ app.get("/", (req: Request, res: Response) => {
 // 라우터
 app.use('/auth', authRouter);
 
-// 게시글 목록 보기
-app.get("/view", (req: Request, res: Response) => {
-  // board가 테이블 이름
-  var sql: string = "select * from board";
-  conn.query(sql, (err: error, result: result) => {
-    if (err) console.log("query is not excuted: " + err);
-    else res.send(result);
-  });
-});
+// // 게시글 목록 보기
+// app.get("/view", (req: Request, res: Response) => {
+//   // board가 테이블 이름
+//   var sql: string = "select * from board";
+//   conn.query(sql, (err: error, result: result) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else res.send(result);
+//   });
+// });
 
-// 게시글 쓰기
-app.post("/insert", upload.single("img"), (req: Request, res: Response) => {
-  var body: any = req.body;
-  var sql: string = "SELECT count(*)+1 as bnum FROM board ";
-  conn.query(sql, (err: error, result: any) => {
-    if (err) console.log("query is not excuted: " + err);
-    else {
-      var sql: string =
-        "insert into board (bnum,id,title,content,writedate) values(?,?,?,?,NOW())";
-      var params: any[] = [result[0].bnum, body.id, body.title, body.content];
-      conn.query(sql, params, (err: error) => {
-        if (err) console.log("query is not excuted: " + err);
-        else if (req.file != null) {
-          // 만약 업로드 된 파일이 있다면
-          var sql: string =
-            "insert into file (bnum,savefile,filetype,writedate) values (?,?,?,now())";
-          var params: any[] = [
-            result[0].bnum,
-            req.file.originalname,
-            req.file.mimetype,
-          ];
-          conn.query(sql, params, (err: error) => {
-            if (err) console.log("query is not excuted: " + err);
-            else res.sendStatus(200);
-          });
-        } else res.sendStatus(200);
-      });
-    }
-  });
-});
+// // 게시글 쓰기
+// app.post("/insert", upload.single("img"), (req: Request, res: Response) => {
+//   var body: any = req.body;
+//   var sql: string = "SELECT count(*)+1 as bnum FROM board ";
+//   conn.query(sql, (err: error, result: any) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else {
+//       var sql: string =
+//         "insert into board (bnum,id,title,content,writedate) values(?,?,?,?,NOW())";
+//       var params: any[] = [result[0].bnum, body.id, body.title, body.content];
+//       conn.query(sql, params, (err: error) => {
+//         if (err) console.log("query is not excuted: " + err);
+//         else if (req.file != null) {
+//           // 만약 업로드 된 파일이 있다면
+//           var sql: string =
+//             "insert into file (bnum,savefile,filetype,writedate) values (?,?,?,now())";
+//           var params: any[] = [
+//             result[0].bnum,
+//             req.file.originalname,
+//             req.file.mimetype,
+//           ];
+//           conn.query(sql, params, (err: error) => {
+//             if (err) console.log("query is not excuted: " + err);
+//             else res.sendStatus(200);
+//           });
+//         } else res.sendStatus(200);
+//       });
+//     }
+//   });
+// });
 
-// 게시글 보기
-app.get("/read/:bnum", (req: Request, res: Response) => {
-  var sql: string = "select * from board where bnum=" + req.params.bnum;
-  conn.query(sql, (err: error, result: result) => {
-    if (err) console.log("query is not excuted: " + err);
-    else res.send(result);
-  });
-});
+// // 게시글 보기
+// app.get("/read/:bnum", (req: Request, res: Response) => {
+//   var sql: string = "select * from board where bnum=" + req.params.bnum;
+//   conn.query(sql, (err: error, result: result) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else res.send(result);
+//   });
+// });
 
-// 게시글 수정
-app.post("/update/:bnum", (req: Request, res: Response) => {
-  var body: any = req.body;
-  var sql: string =
-    "update board set id=?, title=?, content=? where bnum=" + req.params.bnum;
-  var params: any[] = [body.id, body.title, body.content];
-  conn.query(sql, params, (err: error) => {
-    if (err) console.log("query is not excuted: " + err);
-    else res.sendStatus(200);
-  });
-});
+// // 게시글 수정
+// app.post("/update/:bnum", (req: Request, res: Response) => {
+//   var body: any = req.body;
+//   var sql: string =
+//     "update board set id=?, title=?, content=? where bnum=" + req.params.bnum;
+//   var params: any[] = [body.id, body.title, body.content];
+//   conn.query(sql, params, (err: error) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else res.sendStatus(200);
+//   });
+// });
 
-// 게시글 삭제
-app.get("/delete/:bnum", (req: Request, res: Response) => {
-  var sql: string = "delete from board where bnum=" + req.params.bnum;
-  conn.query(sql, (err: error) => {
-    if (err) console.log("query is not excuted: " + err);
-    else res.sendStatus(200);
-  });
-});
+// // 게시글 삭제
+// app.get("/delete/:bnum", (req: Request, res: Response) => {
+//   var sql: string = "delete from board where bnum=" + req.params.bnum;
+//   conn.query(sql, (err: error) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else res.sendStatus(200);
+//   });
+// });
 
-// 이미지 파일 불러오기
-app.get("/img/:bnum", (req: Request, res: Response) => {
-  var sql: string = "select * from file where bnum=" + req.params.bnum;
-  conn.query(sql, (err: error, result: any) => {
-    if (err) console.log("query is not excuted: " + err);
-    else if (result.length != 0) {
-      readFile(
-        "uploads/" + result[0].savefile,
-        (err: NodeJS.ErrnoException | null, data: Buffer) => {
-          res.writeHead(200, { "Context-Type": "text/html" });
-          res.end(data);
-        }
-      );
-    } else res.sendStatus(200);
-  });
-});
+// // 이미지 파일 불러오기
+// app.get("/img/:bnum", (req: Request, res: Response) => {
+//   var sql: string = "select * from file where bnum=" + req.params.bnum;
+//   conn.query(sql, (err: error, result: any) => {
+//     if (err) console.log("query is not excuted: " + err);
+//     else if (result.length != 0) {
+//       readFile(
+//         "uploads/" + result[0].savefile,
+//         (err: NodeJS.ErrnoException | null, data: Buffer) => {
+//           res.writeHead(200, { "Context-Type": "text/html" });
+//           res.end(data);
+//         }
+//       );
+//     } else res.sendStatus(200);
+//   });
+// });
 
 app.listen(app.get("port"), app.get("host"), () =>
   console.log(
