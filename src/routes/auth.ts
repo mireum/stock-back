@@ -61,16 +61,15 @@ router.post('/kakao',async (req,res,next)=>{
 
     // session에 토큰 저장
     req.session.accessToken = accessToken;
-    req.session.save(err => {
-      if (err) {
-        console.error('Session save error:', err);
-      } else {
-        console.log('Session saved successfully:', req.session);
-      }
-    });
+    // req.session.save(err => {
+    //   if (err) {
+    //     console.error('Session save error:', err);
+    //   } else {
+    //     console.log('Session saved successfully:', req.session);
+    //   }
+    // });
     const response = await getUserInfo(accessToken);
 
-    // console.log(`id, email`, id, email);
     console.log(`response`, response);
     res.json({
       message: '카카오 사용자 정보 확인',
@@ -83,7 +82,7 @@ router.post('/kakao',async (req,res,next)=>{
 
  router.post('/kakaoLogout', async (req,res,next)=>{
   try {
-    const reqsession = req.session;
+    const reqsession = req.session.cookie;
     console.log(`reqses::`, reqsession);
     
     const token = req.session.accessToken;
