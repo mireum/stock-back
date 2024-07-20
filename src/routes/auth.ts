@@ -8,10 +8,6 @@ interface Data {
   [key: string]: string;
 }
 
-// interface SessionData {
-//   accessToken: string;
-// }
-
 // 헤더 설정
 const header = {
   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -23,7 +19,7 @@ const router = express.Router();
 router.post('/kakao',async (req,res,next)=>{
   try {
     const {code} = req.body;
-    console.log(`code::`, code);
+    // console.log(`code::`, code);
 
     const getKakaoToken = async (code:string)=>{
 
@@ -47,6 +43,7 @@ router.post('/kakao',async (req,res,next)=>{
     const getUserInfo = async (accessToken:string)=>{
       // Authorization: 'Bearer access_token'
       // 엑세스 토큰 헤더에 담기
+      header.Authorization = `Bearer `;
       header.Authorization +=accessToken
       
       // 카카오 사용자 정보 조회
@@ -70,7 +67,6 @@ router.post('/kakao',async (req,res,next)=>{
     // });
     const response = await getUserInfo(accessToken);
 
-    console.log(`response`, response);
     res.json({
       message: '카카오 사용자 정보 확인',
       response
@@ -82,11 +78,9 @@ router.post('/kakao',async (req,res,next)=>{
 
  router.post('/kakaoLogout', async (req,res,next)=>{
   try {
-    const reqsession = req.session.cookie;
-    console.log(`reqses::`, reqsession);
-    
     const token = req.session.accessToken;
-
+    console.log(`token::`, token);
+    
     if (!token) {
       return res.status(400).send('세선에 토큰 없음');
     }
@@ -97,10 +91,12 @@ router.post('/kakao',async (req,res,next)=>{
         "Authorization": `Bearer ${token}`
       },
     });
-    console.log('response', response);
+
     // 토큰 초기화
     req.session.accessToken = null;
-    
+    res.json({
+      message: '로그아웃 성공',
+    })
   } catch (err) {
     console.error(err);
   }

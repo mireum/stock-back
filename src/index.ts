@@ -89,7 +89,7 @@ const sessionStore = new MySQLStore({
 app.use(session({
   secret: 'KakaoToken',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }, // set secure: true if you're using https
   // express-mysql-session
   store: sessionStore,
