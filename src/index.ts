@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
 import { readFile, mkdirSync, existsSync } from "fs";
-// import { init } from "./database/mysql";
 import {
   OkPacket,createConnection,
   QueryError,ConnectionOptions,
@@ -12,7 +11,13 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
+
 import session from 'express-session';
+// import MySQLFactory from 'express-mysql-session';
+const MySQLStore = require("express-mysql-session")(session);
+
+
+// const MySQLStore = MySQLFactory(session);
 
 var db_info: ConnectionOptions = {
   host: "localhost",
@@ -56,13 +61,13 @@ const upload: Multer = multer({
 });
 
 type StaticOrigin = boolean | string | RegExp | (boolean | string | RegExp)[];
-type error = QueryError | null;
-type result =
-  | RowDataPacket[]
-  | RowDataPacket[][]
-  | OkPacket
-  | OkPacket[]
-  | ResultSetHeader;
+// type error = QueryError | null;
+// type result =
+//   | RowDataPacket[]
+//   | RowDataPacket[][]
+//   | OkPacket
+//   | OkPacket[]
+//   | ResultSetHeader;
 
 // 라우터 가져오기
 const authRouter = require('./routes/auth');
@@ -73,12 +78,31 @@ app.set("host", process.env.HOST || "0.0.0.0");
 app.use(json());
 
 // session 사용 미들웨어
+const sessionStore = new MySQLStore({
+  host: db_info.host,
+  port: db_info.port,
+  user: db_info.user,
+  password: db_info.password,
+  database: db_info.database
+});
+
 app.use(session({
   secret: 'KakaoToken',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // set secure: true if you're using https
+  cookie: { secure: false }, // set secure: true if you're using https
+  // express-mysql-session
+  store: sessionStore,
 }));
+
+// const sessionOptions: SessionOptions = {
+//   secret: 'KakaoToken',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: sessionStore,
+//   cookie: { secure: false } // set secure: true if you're using https
+// };
+// app.use(session(sessionOptions));
 
 app.use(urlencoded({ extended: false }));
 app.use(
