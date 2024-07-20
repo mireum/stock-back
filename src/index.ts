@@ -95,15 +95,6 @@ app.use(session({
   store: sessionStore,
 }));
 
-// const sessionOptions: SessionOptions = {
-//   secret: 'KakaoToken',
-//   resave: false,
-//   saveUninitialized: true,
-//   store: sessionStore,
-//   cookie: { secure: false } // set secure: true if you're using https
-// };
-// app.use(session(sessionOptions));
-
 app.use(urlencoded({ extended: false }));
 app.use(
   cors({
