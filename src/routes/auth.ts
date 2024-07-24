@@ -74,9 +74,10 @@ router.post('/kakao',async (req,res,next)=>{
   } catch (err) {
     console.log(err);     
   }
- });
+});
 
- router.post('/kakaoLogout', async (req,res,next)=>{
+
+router.post('/kakaoLogout', async (req,res,next)=>{
   try {
     const token = req.session.accessToken;
     console.log(`token::`, token);
@@ -100,7 +101,7 @@ router.post('/kakao',async (req,res,next)=>{
   } catch (err) {
     console.error(err);
   }
- });
+});
 
  module.exports = router;
 

@@ -16,6 +16,10 @@ import {
 import session from 'express-session';
 const MySQLStore = require("express-mysql-session")(session);
 
+// https 적용
+const keyPath = path.join('C:', 'Windows', 'System32', 'key.pem');
+const certPath = path.join('C:', 'Windows', 'System32', 'cert.pem');
+
 var db_info: ConnectionOptions = {
   host: "localhost",
   port: 3306,
@@ -23,6 +27,11 @@ var db_info: ConnectionOptions = {
   password: "qwer",
   database: "stock_db",
 };
+// db_info.ssl = {
+//   sslmode: 'verify-full',
+//   key: fs.readFileSync(keyPath),
+//   cert: fs.readFileSync(certPath),
+// }
 
 const init = (): Connection => createConnection(db_info);
 
@@ -38,16 +47,11 @@ const connect = (conn: { connect: (arg0: (err: any) => void) => void }) => {
 const conn: Connection = init();
 connect(conn);
 
-// https 적용
-const keyPath = path.join('C:', 'Windows', 'System32', 'key.pem');
-const certPath = path.join('C:', 'Windows', 'System32', 'cert.pem');
-
 const app: Express = express();
 
 dotenv.config();
 
-const whitelist: string[] = ["http://localhost:3000", 
-  "https://localhost:8000"]; // 접속 허용 주소
+const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
 const upload: Multer = multer({
   storage: multer.diskStorage({
     destination: (req, file, callback) => {
@@ -91,7 +95,7 @@ app.use(session({
   secret: 'KakaoToken',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }, // set secure: true if you're using https
+  cookie: { secure: false, sameSite: "lax" }, // set secure: true if you're using https
   // express-mysql-session
   store: sessionStore,
 }));
@@ -221,11 +225,11 @@ app.use('/auth', authRouter);
 //   });
 // });
 
-app.listen(app.get("port"), app.get("host"), () =>
-  console.log(
-    "Server is running on : " + app.get("host") + ":" + app.get("port")
-  )
-);
+// app.listen(app.get("port"), app.get("host"), () =>
+//   console.log(
+//     "Server is running on : " + app.get("host") + ":" + app.get("port")
+//   )
+// );
 
 // https 서버
 https
@@ -235,7 +239,8 @@ https
       cert: fs.readFileSync(certPath),
     },
     app.use('/', (req, res) => {
-      res.send('HTTPS server on port 8000)');
+      console.log('HTTPS server on port 3001');
+      res.send('HTTPS server on port 3001)');
     }),
   )
-  .listen(8000);
+  .listen(3001);
