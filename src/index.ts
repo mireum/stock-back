@@ -3,7 +3,9 @@ import multer, { Multer } from "multer";
 import dotenv from 'dotenv';
 import cors from "cors";
 import { json, urlencoded } from "body-parser";
-import { readFile, mkdirSync, existsSync } from "fs";
+import https from "https"
+import fs, { readFile, mkdirSync, existsSync } from "fs";
+import path from "path";
 import {
   OkPacket,createConnection,
   QueryError,ConnectionOptions,
@@ -11,13 +13,8 @@ import {
   RowDataPacket,
   ResultSetHeader,
 } from "mysql2";
-
 import session from 'express-session';
-// import MySQLFactory from 'express-mysql-session';
 const MySQLStore = require("express-mysql-session")(session);
-
-
-// const MySQLStore = MySQLFactory(session);
 
 var db_info: ConnectionOptions = {
   host: "localhost",
@@ -41,12 +38,16 @@ const connect = (conn: { connect: (arg0: (err: any) => void) => void }) => {
 const conn: Connection = init();
 connect(conn);
 
+// https 적용
+const keyPath = path.join('C:', 'Windows', 'System32', 'key.pem');
+const certPath = path.join('C:', 'Windows', 'System32', 'cert.pem');
 
 const app: Express = express();
 
 dotenv.config();
 
-const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
+const whitelist: string[] = ["http://localhost:3000", 
+  "https://localhost:8000"]; // 접속 허용 주소
 const upload: Multer = multer({
   storage: multer.diskStorage({
     destination: (req, file, callback) => {
@@ -225,3 +226,16 @@ app.listen(app.get("port"), app.get("host"), () =>
     "Server is running on : " + app.get("host") + ":" + app.get("port")
   )
 );
+
+// https 서버
+https
+  .createServer(
+    {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath),
+    },
+    app.use('/', (req, res) => {
+      res.send('HTTPS server on port 8000)');
+    }),
+  )
+  .listen(8000);
