@@ -6,13 +6,7 @@ import { json, urlencoded } from "body-parser";
 import https from "https"
 import fs, { readFile, mkdirSync, existsSync } from "fs";
 import path from "path";
-import {
-  OkPacket,createConnection,
-  QueryError,ConnectionOptions,
-  Connection,
-  RowDataPacket,
-  ResultSetHeader,
-} from "mysql2";
+import { createConnection, ConnectionOptions, Connection } from "mysql2";
 import session from 'express-session';
 const MySQLStore = require("express-mysql-session")(session);
 
@@ -27,11 +21,6 @@ var db_info: ConnectionOptions = {
   password: "qwer",
   database: "stock_db",
 };
-// db_info.ssl = {
-//   sslmode: 'verify-full',
-//   key: fs.readFileSync(keyPath),
-//   cert: fs.readFileSync(certPath),
-// }
 
 const init = (): Connection => createConnection(db_info);
 
@@ -98,11 +87,6 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
-// app.use(cors({
-//   origin: ['*'],
-//   credentials: true,
-//   optionsSuccessStatus: 200,
-// }))
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
@@ -113,17 +97,6 @@ app.get("/", (req: Request, res: Response) => {
 
 // 라우터
 app.use('/auth', authRouter);
-
-// // 게시글 목록 보기
-// app.get("/view", (req: Request, res: Response) => {
-//   // board가 테이블 이름
-//   var sql: string = "select * from board";
-//   conn.query(sql, (err: error, result: result) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else res.send(result);
-//   });
-// });
-
 
 // https 서버
 https
