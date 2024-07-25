@@ -1,6 +1,6 @@
 import axios from "axios";
 import express, { query } from "express";
-import { conn } from "..";
+import { queryAsync } from "../func";
 
 interface Data {
   grant_type: string;
@@ -76,18 +76,6 @@ router.post('/kakao',async (req,res,next)=>{
     console.log(err);     
   }
 });
-
-const queryAsync = (sql:string) => {
-  return new Promise((resolve, reject) => {
-    conn.query(sql, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-};
 
 router.post('/kakaoLogout', async (req,res,next)=>{
   try {
