@@ -4,7 +4,7 @@ import { queryAsync } from "../func";
 
 const router = express.Router();
 
-router.post(``, async (req,res,next)=>{
+router.post(`/buy`, async (req,res,next)=>{
   try {
     const sql = "select * from sessions";
     const result:any = await queryAsync(sql);
@@ -18,8 +18,8 @@ router.post(``, async (req,res,next)=>{
     const response = await axios.post("https://openapivts.koreainvestment.com:29443/uapi/domestic-stock/v1/trading/order-cash", {
       headers: {
         "authorization": `Bearer ${token}`,
-        "appkey": process.env.REACT_APP_APP_KEY,
-        "appsecret": process.env.REACT_APP_APP_SECRET_KEY,
+        "appkey": process.env.APP_KEY,
+        "appsecret": process.env.APP_SECRET_KEY,
         "tr_id": "VTTC0802U",
       },
       body: {

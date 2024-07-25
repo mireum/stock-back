@@ -44,6 +44,8 @@ type StaticOrigin = boolean | string | RegExp | (boolean | string | RegExp)[];
 
 // 라우터 가져오기
 const authRouter = require('./routes/auth');
+const tradeRouter = require('./routes/trade');
+
 
 app.set("port", process.env.PORT || 5000);
 app.set("host", process.env.HOST || "0.0.0.0");
@@ -97,6 +99,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // 라우터
 app.use('/auth', authRouter);
+app.use('/trade', tradeRouter);
 
 // https 서버
 https
