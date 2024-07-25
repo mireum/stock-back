@@ -44,35 +44,14 @@ const connect = (conn: { connect: (arg0: (err: any) => void) => void }) => {
     }
   });
 };
-const conn: Connection = init();
+export const conn: Connection = init();
 connect(conn);
 
 const app: Express = express();
 
 dotenv.config();
 
-const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
-const upload: Multer = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, callback) => {
-      console.log(file),
-        existsSync("./uploads/") || mkdirSync("./uploads/", { recursive: !0 }),
-        callback(null, "./uploads/");
-    },
-    filename: (req, file, callback) => {
-      callback(null, file.originalname);
-    },
-  }),
-});
-
 type StaticOrigin = boolean | string | RegExp | (boolean | string | RegExp)[];
-// type error = QueryError | null;
-// type result =
-//   | RowDataPacket[]
-//   | RowDataPacket[][]
-//   | OkPacket
-//   | OkPacket[]
-//   | ResultSetHeader;
 
 // 라우터 가져오기
 const authRouter = require('./routes/auth');
@@ -92,13 +71,16 @@ const sessionStore = new MySQLStore({
 });
 
 app.use(session({
+  name: 'KakaoToken',
   secret: 'KakaoToken',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, sameSite: "lax" }, // set secure: true if you're using https
+  cookie: { secure: true, httpOnly: false }, // set secure: true if you're using https
   // express-mysql-session
   store: sessionStore,
 }));
+
+const whitelist: string[] = ["http://localhost:3000"]; // 접속 허용 주소
 
 app.use(urlencoded({ extended: false }));
 app.use(
@@ -112,25 +94,20 @@ app.use(
           ? res(Error("허가되지 않은 주소입니다."))
           : res(null, !0);
     },
-    credentials: !0,
+    credentials: true,
     optionsSuccessStatus: 200,
   })
 );
-
-interface Data{
-  id:number;
-  name:string;
-}
-
-const Send:Data = {
-  id:0,
-  name:'test'
-}
+// app.use(cors({
+//   origin: ['*'],
+//   credentials: true,
+//   optionsSuccessStatus: 200,
+// }))
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
       success: true,
-      data:Send
+      data:{id: 0}
   })
 });
 
@@ -147,89 +124,6 @@ app.use('/auth', authRouter);
 //   });
 // });
 
-// // 게시글 쓰기
-// app.post("/insert", upload.single("img"), (req: Request, res: Response) => {
-//   var body: any = req.body;
-//   var sql: string = "SELECT count(*)+1 as bnum FROM board ";
-//   conn.query(sql, (err: error, result: any) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else {
-//       var sql: string =
-//         "insert into board (bnum,id,title,content,writedate) values(?,?,?,?,NOW())";
-//       var params: any[] = [result[0].bnum, body.id, body.title, body.content];
-//       conn.query(sql, params, (err: error) => {
-//         if (err) console.log("query is not excuted: " + err);
-//         else if (req.file != null) {
-//           // 만약 업로드 된 파일이 있다면
-//           var sql: string =
-//             "insert into file (bnum,savefile,filetype,writedate) values (?,?,?,now())";
-//           var params: any[] = [
-//             result[0].bnum,
-//             req.file.originalname,
-//             req.file.mimetype,
-//           ];
-//           conn.query(sql, params, (err: error) => {
-//             if (err) console.log("query is not excuted: " + err);
-//             else res.sendStatus(200);
-//           });
-//         } else res.sendStatus(200);
-//       });
-//     }
-//   });
-// });
-
-// // 게시글 보기
-// app.get("/read/:bnum", (req: Request, res: Response) => {
-//   var sql: string = "select * from board where bnum=" + req.params.bnum;
-//   conn.query(sql, (err: error, result: result) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else res.send(result);
-//   });
-// });
-
-// // 게시글 수정
-// app.post("/update/:bnum", (req: Request, res: Response) => {
-//   var body: any = req.body;
-//   var sql: string =
-//     "update board set id=?, title=?, content=? where bnum=" + req.params.bnum;
-//   var params: any[] = [body.id, body.title, body.content];
-//   conn.query(sql, params, (err: error) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else res.sendStatus(200);
-//   });
-// });
-
-// // 게시글 삭제
-// app.get("/delete/:bnum", (req: Request, res: Response) => {
-//   var sql: string = "delete from board where bnum=" + req.params.bnum;
-//   conn.query(sql, (err: error) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else res.sendStatus(200);
-//   });
-// });
-
-// // 이미지 파일 불러오기
-// app.get("/img/:bnum", (req: Request, res: Response) => {
-//   var sql: string = "select * from file where bnum=" + req.params.bnum;
-//   conn.query(sql, (err: error, result: any) => {
-//     if (err) console.log("query is not excuted: " + err);
-//     else if (result.length != 0) {
-//       readFile(
-//         "uploads/" + result[0].savefile,
-//         (err: NodeJS.ErrnoException | null, data: Buffer) => {
-//           res.writeHead(200, { "Context-Type": "text/html" });
-//           res.end(data);
-//         }
-//       );
-//     } else res.sendStatus(200);
-//   });
-// });
-
-// app.listen(app.get("port"), app.get("host"), () =>
-//   console.log(
-//     "Server is running on : " + app.get("host") + ":" + app.get("port")
-//   )
-// );
 
 // https 서버
 https
@@ -239,8 +133,8 @@ https
       cert: fs.readFileSync(certPath),
     },
     app.use('/', (req, res) => {
-      console.log('HTTPS server on port 3001');
-      res.send('HTTPS server on port 3001)');
+      console.log('HTTPS server on port 443');
+      res.send('HTTPS server on port 443)');
     }),
   )
-  .listen(3001);
+  .listen(443);

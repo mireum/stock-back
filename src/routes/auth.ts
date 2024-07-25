@@ -1,5 +1,6 @@
 import axios from "axios";
-import express from "express";
+import express, { query } from "express";
+import { conn } from "..";
 
 interface Data {
   grant_type: string;
@@ -58,13 +59,13 @@ router.post('/kakao',async (req,res,next)=>{
 
     // session에 토큰 저장
     req.session.accessToken = accessToken;
-    // req.session.save(err => {
-    //   if (err) {
-    //     console.error('Session save error:', err);
-    //   } else {
-    //     console.log('Session saved successfully:', req.session);
-    //   }
-    // });
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+      } else {
+        console.log('Session saved successfully:', req.session);
+      }
+    });
     const response = await getUserInfo(accessToken);
 
     res.json({
@@ -76,12 +77,27 @@ router.post('/kakao',async (req,res,next)=>{
   }
 });
 
+const queryAsync = (sql:string) => {
+  return new Promise((resolve, reject) => {
+    conn.query(sql, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
 
 router.post('/kakaoLogout', async (req,res,next)=>{
   try {
-    const token = req.session.accessToken;
+    const sql = "select * from sessions";
+    const result:any = await queryAsync(sql);
+    // console.log('result안의 데이터::', JSON.parse(result[0].data));
+    const token = JSON.parse(result[0].data).accessToken;
+
     console.log(`token::`, token);
-    
+
     if (!token) {
       return res.status(400).send('세선에 토큰 없음');
     }
@@ -94,7 +110,11 @@ router.post('/kakaoLogout', async (req,res,next)=>{
     });
 
     // 토큰 초기화
-    req.session.accessToken = null;
+    // req.session.accessToken = null;
+    req.session.destroy(() => {
+      req.session
+    });
+
     res.json({
       message: '로그아웃 성공',
     })
