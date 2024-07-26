@@ -68,6 +68,10 @@ router.post('/kakao',async (req,res,next)=>{
     });
     const response = await getUserInfo(accessToken);
 
+    // mysql에 카카오 id 저장
+    const sqlUsers = "select * from users";
+
+
     res.json({
       message: '카카오 사용자 정보 확인',
       response
@@ -79,8 +83,8 @@ router.post('/kakao',async (req,res,next)=>{
 
 router.post('/kakaoLogout', async (req,res,next)=>{
   try {
-    const sql = "select * from sessions";
-    const result:any = await queryAsync(sql);
+    const sqlSesstions = "select * from sessions";
+    const result:any = await queryAsync(sqlSesstions);
     // console.log('result안의 데이터::', JSON.parse(result[0].data));
     const token = JSON.parse(result[0].data).accessToken;
 

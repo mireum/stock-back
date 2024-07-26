@@ -6,35 +6,30 @@ const router = express.Router();
 
 router.post(`/buy`, async (req,res,next)=>{
   try {
-    // const sql = "select * from sessions";
-    // const result:any = await queryAsync(sql);
-    // const token = JSON.parse(result[0].data).accessToken;
-    const {token} = req.body;
+    // const {token} = req.body;
 
-    console.log(`token::`, token);
+    // console.log(`token::`, token);
 
-    if (!token) {
-      return res.status(400).send('mysql에 토큰 없음');
-    }
-    const response = await axios.post("https://openapivts.koreainvestment.com:29443/uapi/domestic-stock/v1/trading/order-cash", {
-      "CANO": "50112547",
-      "ACNT_PRDT_CD": "01",
-      "PDNO": "005930",
-      "ORD_DVSN": "00",
-      "ORD_QTY": "1",
-      "ORD_UNPR": "0"
-    },{
-      headers: {
-        "authorization": `Bearer ${token}`,
-        "appkey": process.env.APP_KEY,
-        "appsecret": process.env.APP_SECRET_KEY,
-        "tr_id": "VTTC0802U",
-      },
-      withCredentials:true
-    });
-    console.log('주식매수', response);
-    // navigate('/');
-    // window.location.reload();
+    // if (!token) {
+    //   return res.status(400).send('mysql에 토큰 없음');
+    // }
+    // const response = await axios.post("https://openapivts.koreainvestment.com:29443/uapi/domestic-stock/v1/trading/order-cash", {
+    //   "CANO": "50112547",
+    //   "ACNT_PRDT_CD": "01",
+    //   "PDNO": "005930",
+    //   "ORD_DVSN": "00",
+    //   "ORD_QTY": "1",
+    //   "ORD_UNPR": "0"
+    // },{
+    //   headers: {
+    //     "authorization": `Bearer ${token}`,
+    //     "appkey": process.env.APP_KEY,
+    //     "appsecret": process.env.APP_SECRET_KEY,
+    //     "tr_id": "VTTC0802U",
+    //   },
+    //   withCredentials:true
+    // });
+    // console.log('주식매수', response);
 
   } catch (err) {
     console.error(err);
