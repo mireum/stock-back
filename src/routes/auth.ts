@@ -1,6 +1,7 @@
 import axios from "axios";
 import express, { query } from "express";
 import { queryAsync } from "../func";
+import { conn } from "..";
 
 interface Data {
   grant_type: string;
@@ -17,7 +18,7 @@ const header = {
 
 const router = express.Router();
 
-router.post('/kakao',async (req,res,next)=>{
+router.post('/kakao', async (req,res,next)=>{
   try {
     const {code} = req.body;
     // console.log(`code::`, code);
@@ -50,6 +51,21 @@ router.post('/kakao',async (req,res,next)=>{
       // 카카오 사용자 정보 조회
       const getKakaoUser = await axios.get("https://kapi.kakao.com/v2/user/me", {headers: header})
       const result = getKakaoUser.data;
+      // console.log('카카오 사용자 정보 조회', result);
+      
+      // mysql에 id, nickname, thumbnail_image 저장
+      const insertOrUpdateUser = async (result:any) => {
+        const sqlUsers = "INSERT INTO user (id, nickname, thumbnail_image) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE nickname=?, thumbnail_image=?";
+        const values = [result.id, result.properties.nickname, result.properties.thumbnail_image, result.properties.nickname, result.properties.thumbnail_image];
+      
+        try {
+          const result = await queryAsync(sqlUsers, values);
+          console.log("리절트::", result);
+        } catch (err) {
+          console.error("Error executing query:", err);
+        }
+      };
+      insertOrUpdateUser(result);
 
       // id, 닉네임, 썸네일 추출
       return {id:result.id, nickname:result.properties.nickname, thumbnail_image:result.properties.thumbnail_image}
@@ -68,10 +84,6 @@ router.post('/kakao',async (req,res,next)=>{
     });
     const response = await getUserInfo(accessToken);
 
-    // mysql에 카카오 id 저장
-    const sqlUsers = "select * from users";
-
-
     res.json({
       message: '카카오 사용자 정보 확인',
       response
@@ -84,7 +96,7 @@ router.post('/kakao',async (req,res,next)=>{
 router.post('/kakaoLogout', async (req,res,next)=>{
   try {
     const sqlSesstions = "select * from sessions";
-    const result:any = await queryAsync(sqlSesstions);
+    const result:any = await queryAsync(sqlSesstions, [null]);
     // console.log('result안의 데이터::', JSON.parse(result[0].data));
     const token = JSON.parse(result[0].data).accessToken;
 

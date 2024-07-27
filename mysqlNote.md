@@ -43,3 +43,40 @@ app.post("/insert", upload.single("img"), function (req, res) {
     }
   });
 });
+
+app.post('/topic/add', function(req, res) {
+  const title = req.body.title;
+  const description = req.body.description;
+  const author = req.body.author;
+
+  const sql= 'INSERT INTO topic (title, description, author) VALUES (?, ?, ?)';
+  conn.query(sql, [title, description, author], function(err, result, field){
+    if(err){
+      console.log(err);
+      res.status(500).send('Internal Server  Error');
+    }
+    res.redirect('/topic/'+ result.insertId);
+  });
+});
+
+PK = Primary Key: 기본키라고 불리며, 중복 되어 나타날 수 없는 단일 값이며 null값을 가질 수 없고 오직 하나만 설정 가능하다.
+NN = Not Null: null값을 가질 수 없다.
+BIN = Binary: 바이너리 데이터
+UN = Unsigned: 정수 유형
+UQ = Create/remove Unique Key: 기본키와 같은 성질을 같지만 차이점은 Unique Key는 하나의 테이블에 각각 컬럼마다 지정이 가능하고 여러개 설정이 가능하다.
+ZF = zero-Filled: 0으로 채우기
+AI = Auto Increment
+
+app.get('/users', (req, res) => {
+  connection.query('SELECT * from Users', (error, rows) => {
+    if (error) throw error;
+    console.log('User info is: ', rows);
+    res.send(rows);
+  });
+});
+
+## mysql workbench
+
+콜룸 이름 바꾸기
+alter table `user` change `profilePic` `thumbnail_image` varchar(120)
+alter table `user` change `username` `nickname` varchar(30)
