@@ -1,7 +1,6 @@
 import axios from "axios";
 import express, { query } from "express";
-import { queryAsync } from "../func";
-import { conn } from "..";
+import { handleSql, queryAsync } from "../func";
 
 interface Data {
   grant_type: string;
@@ -55,12 +54,11 @@ router.post('/kakao', async (req,res,next)=>{
       
       // mysql에 id, nickname, thumbnail_image 저장
       const insertOrUpdateUser = async (result:any) => {
-        const sqlUsers = "INSERT INTO user (id, nickname, thumbnail_image) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE nickname=?, thumbnail_image=?";
-        const values = [result.id, result.properties.nickname, result.properties.thumbnail_image, result.properties.nickname, result.properties.thumbnail_image];
+        const sqlUsers = "INSERT INTO user (id, nickname, thumbnail_image, accessToken) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE nickname=?, thumbnail_image=?, accessToken=?";
+        const values = [result.id, result.properties.nickname, result.properties.thumbnail_image, accessToken, result.properties.nickname, result.properties.thumbnail_image, accessToken];
       
         try {
           const result = await queryAsync(sqlUsers, values);
-          console.log("리절트::", result);
         } catch (err) {
           console.error("Error executing query:", err);
         }
@@ -73,15 +71,15 @@ router.post('/kakao', async (req,res,next)=>{
     
     const { accessToken } = await getKakaoToken(code);
 
-    // session에 토큰 저장
-    req.session.accessToken = accessToken;
-    req.session.save(err => {
-      if (err) {
-        console.error('Session save error:', err);
-      } else {
-        console.log('Session saved successfully:', req.session);
-      }
-    });
+    // // session에 토큰 저장
+    // req.session.accessToken = accessToken;
+    // req.session.save(err => {
+    //   if (err) {
+    //     console.error('Session save error:', err);
+    //   } else {
+    //     console.log('Session saved successfully:', req.session);
+    //   }
+    // });
     const response = await getUserInfo(accessToken);
 
     res.json({
@@ -94,13 +92,12 @@ router.post('/kakao', async (req,res,next)=>{
 });
 
 router.post('/kakaoLogout', async (req,res,next)=>{
+  const { kakaoId } = req.body;
+  console.log(`kakaoID`, kakaoId);
+  
   try {
-    const sqlSesstions = "select * from sessions";
-    const result:any = await queryAsync(sqlSesstions, [null]);
-    // console.log('result안의 데이터::', JSON.parse(result[0].data));
-    const token = JSON.parse(result[0].data).accessToken;
-
-    console.log(`token::`, token);
+    const sqlSesstions = "SELECT accessToken FROM user";
+    const token = await handleSql(sqlSesstions, kakaoId);
 
     if (!token) {
       return res.status(400).send('세선에 토큰 없음');
@@ -109,15 +106,13 @@ router.post('/kakaoLogout', async (req,res,next)=>{
     const response = await axios(`https://kapi.kakao.com/v1/user/logout`, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token[0].accessToken}`
       },
     });
 
-    // 토큰 초기화
-    // req.session.accessToken = null;
-    req.session.destroy(() => {
-      req.session
-    });
+    // mysql에 accessToken 초기화
+    const sql = "UPDATE user SET accessToken = NULL WHERE id = ?";
+    const removeToken = await handleSql(sql, kakaoId);
 
     res.json({
       message: '로그아웃 성공',
@@ -128,30 +123,3 @@ router.post('/kakaoLogout', async (req,res,next)=>{
 });
 
  module.exports = router;
-
-//  login response 결과!
-//  {
-//   id: 3625128577,
-//   connected_at: '2024-07-16T17:02:49Z',
-//   properties: {
-//     nickname: '최지우',
-//     profile_image: 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640',
-//     thumbnail_image: 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R110x110'
-//   },
-//   kakao_account: {
-//     profile_nickname_needs_agreement: false,
-//     profile_image_needs_agreement: false,
-//     profile: {
-//       nickname: '최지우',
-//       thumbnail_image_url: 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R110x110',  
-//       profile_image_url: 'http://t1.kakaocdn.net/account_images/default_profile.jpeg.twg.thumb.R640x640',    
-//       is_default_image: true,
-//       is_default_nickname: false
-//     },
-//     has_email: true,
-//     email_needs_agreement: false,
-//     is_email_valid: true,
-//     is_email_verified: true,
-//     email: 'yljw225@kakao.com'
-//   }
-// }

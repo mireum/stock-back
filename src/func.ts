@@ -13,3 +13,10 @@ export const queryAsync = (sql: string, values: (string | number | boolean | nul
   });
 };
 
+export const handleSql = async (sqlWhere: string, value: (string | number | boolean | null)) => {
+  const sql = sqlWhere;
+  const values: (string | number | boolean | null)[] = [value];
+  const result:any = await queryAsync(sql, values);
+
+  return result;
+}
