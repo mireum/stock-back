@@ -76,7 +76,6 @@ router.post('/kakao', async (req,res,next)=>{
 
 router.post('/kakaoLogout', async (req,res,next)=>{
   const { kakaoId } = req.body;
-  console.log(`kakaoID`, kakaoId);
   
   try {
     const sqlSesstions = "SELECT accessToken FROM user";
