@@ -18,6 +18,7 @@ router.post(`/buystock`, async (req,res,next)=>{
 
     res.json({
       message: '주식 구매 성공',
+      flag: true,
     });
 
   } catch (err) {
