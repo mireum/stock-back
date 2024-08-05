@@ -1,5 +1,5 @@
 import express from "express";
-import { handleSql, queryAsync } from "../func";
+import { handleSql } from "../func";
 
 const router = express.Router();
 
