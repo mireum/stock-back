@@ -10,10 +10,10 @@ router.post(`/buystock`, async (req,res,next)=>{
     const stockInfo = JSON.stringify({ Stockname, price, stockNumber });
     
     // mysql에 구매한 주식 정보 저장
-    // ownedStock이 null이면 빈 배열로 초기화
-    const nullsql = `UPDATE user SET ownedStock = IFNULL(ownedStock, JSON_ARRAY()) WHERE id = ?`;
+    // ownedstock이 null이면 빈 배열로 초기화
+    const nullsql = `UPDATE user SET ownedstock = IFNULL(ownedstock, JSON_ARRAY()) WHERE id = ?`;
     const nullresult = await handleSql(nullsql, kakaoId);
-    const sql = `UPDATE user SET ownedStock = JSON_ARRAY_APPEND(ownedStock, '$', CAST(? AS JSON)) WHERE id = ?`;
+    const sql = `UPDATE user SET ownedstock = JSON_ARRAY_APPEND(ownedstock, '$', CAST(? AS JSON)) WHERE id = ?`;
     const result = await handleSql(sql, [stockInfo, kakaoId]);    
 
     res.json({

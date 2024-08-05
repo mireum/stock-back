@@ -6,16 +6,18 @@ const router = express.Router();
 router.post(`/myStock`, async (req,res,next)=>{
   const { kakaoId } = req.body;
   try {
-    const sql = "SELECT ownedStock FROM user WHERE id = ?";
+    const sql = "SELECT ownedstock FROM user WHERE id = ?";
     const data = await handleSql(sql, kakaoId);
-    console.log(data[0].ownedStock);
+    console.log(data[0].ownedstock);
     res.json({
       flag: true,
-      data: data[0].ownedStock
+      data: data[0].ownedstock
     });
   } catch (error) {
     console.error(error);
   }
 });
+
+// const sql = "DELETE ownedstock FROM user WHERE id = ?";
 
 module.exports = router;
