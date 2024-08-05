@@ -6,8 +6,8 @@ const router = express.Router();
 router.post(`/buystock`, async (req,res,next)=>{
   try {
     const { form, kakaoId } = req.body;
-    const { Stockname, price, stockNumber } = form;
-    const stockInfo = JSON.stringify({ Stockname, price, stockNumber });
+    const { stockname, price, stockNumber } = form;
+    const stockInfo = JSON.stringify({ stockname, price, stockNumber });
     
     // mysql에 구매한 주식 정보 저장
     // ownedstock이 null이면 빈 배열로 초기화
