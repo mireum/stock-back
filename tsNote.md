@@ -4,6 +4,31 @@ npm i -D express ts-node nodemon @types/node @types/express
 🙆‍♀️ cookie-parser cors dotenv express-session morgan
 🙅‍♀️ bcrypt @aws-sdk/client-s3 aws-sdk ejs multer multer-s3 passport passport-local
 
+"devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express-mysql-session": "^3.0.6",
+    "@types/express-session": "^1.18.0",
+    "@types/multer": "^1.4.11",
+    "axios": "^1.7.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.18.0",
+    "fs": "^0.0.1-security",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.10.1",
+    "typescript": "^5.5.2"
+  }
+  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
